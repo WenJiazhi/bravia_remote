@@ -195,7 +195,10 @@ class BraviaApi {
 
   // Send text to TV (for keyboard input)
   // Note: Text input only works when TV has an active text field (e.g., search box, login form)
-  Future<bool> sendText(String text) async {
+  // Returns a map with 'success' and 'debug' keys
+  Future<Map<String, dynamic>> sendTextWithDebug(String text) async {
+    final debugInfo = <String>[];
+
     // Method 1: Try setTextForm on appControl (most common method)
     var result = await _sendRequest(
       '/sony/appControl',
@@ -204,10 +207,11 @@ class BraviaApi {
       version: '1.0',
     );
 
+    debugInfo.add('Method 1 (setTextForm v1.0): ${result ?? "null"}');
     developer.log('setTextForm v1.0 result: $result', name: 'BraviaApi');
 
     if (result != null && result['error'] == null) {
-      return true;
+      return {'success': true, 'debug': debugInfo.join('\n')};
     }
 
     // Method 2: Try setTextInput on textInput endpoint (some models)
@@ -218,10 +222,11 @@ class BraviaApi {
       version: '1.0',
     );
 
+    debugInfo.add('Method 2 (setTextInput): ${result ?? "null"}');
     developer.log('setTextInput result: $result', name: 'BraviaApi');
 
     if (result != null && result['error'] == null) {
-      return true;
+      return {'success': true, 'debug': debugInfo.join('\n')};
     }
 
     // Method 3: Try with version 1.1 (some newer TVs)
@@ -232,10 +237,11 @@ class BraviaApi {
       version: '1.1',
     );
 
+    debugInfo.add('Method 3 (setTextForm v1.1): ${result ?? "null"}');
     developer.log('setTextForm v1.1 result: $result', name: 'BraviaApi');
 
     if (result != null && result['error'] == null) {
-      return true;
+      return {'success': true, 'debug': debugInfo.join('\n')};
     }
 
     // Method 4: Try with encKey if getTextForm works
@@ -246,6 +252,7 @@ class BraviaApi {
       version: '1.0',
     );
 
+    debugInfo.add('Method 4 (getTextForm): ${getResult ?? "null"}');
     developer.log('getTextForm result: $getResult', name: 'BraviaApi');
 
     if (getResult != null && getResult['result'] != null) {
@@ -259,15 +266,25 @@ class BraviaApi {
             params: [{'text': text, 'encKey': encKey}],
             version: '1.0',
           );
+          debugInfo.add('Method 4 (with encKey): ${retryResult ?? "null"}');
           developer.log('setTextForm with encKey result: $retryResult', name: 'BraviaApi');
-          return retryResult != null && retryResult['error'] == null;
+          if (retryResult != null && retryResult['error'] == null) {
+            return {'success': true, 'debug': debugInfo.join('\n')};
+          }
         }
       } catch (e) {
+        debugInfo.add('Error parsing: $e');
         developer.log('Error parsing getTextForm: $e', name: 'BraviaApi');
       }
     }
 
-    return false;
+    return {'success': false, 'debug': debugInfo.join('\n')};
+  }
+
+  // Legacy method for backward compatibility
+  Future<bool> sendText(String text) async {
+    final result = await sendTextWithDebug(text);
+    return result['success'] as bool;
   }
 
   // Power control

@@ -15,6 +15,7 @@ class _TextInputScreenState extends State<TextInputScreen> {
   final TextEditingController _controller = TextEditingController();
   bool _isSending = false;
   final List<String> _history = [];
+  String? _lastDebugInfo;
 
   @override
   void dispose() {
@@ -28,7 +29,9 @@ class _TextInputScreenState extends State<TextInputScreen> {
 
     setState(() => _isSending = true);
 
-    final success = await widget.api.sendText(text);
+    final result = await widget.api.sendTextWithDebug(text);
+    final success = result['success'] as bool;
+    _lastDebugInfo = result['debug'] as String?;
 
     if (!mounted) return;
     setState(() => _isSending = false);
@@ -47,20 +50,65 @@ class _TextInputScreenState extends State<TextInputScreen> {
           SnackBar(
             content: Text(l10n.get('textSentSuccessfully')),
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 1),
+            duration: const Duration(seconds: 1),
           ),
         );
       }
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.get('failedToSendText')),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showDebugDialog(l10n);
       }
     }
+  }
+
+  void _showDebugDialog(AppLocalizations l10n) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey[850],
+        title: Text(
+          l10n.get('failedToSendText'),
+          style: const TextStyle(color: Colors.red),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Debug Info:',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  _lastDebugInfo ?? 'No debug info',
+                  style: const TextStyle(
+                    color: Colors.white60,
+                    fontSize: 11,
+                    fontFamily: 'monospace',
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.get('confirm')),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
