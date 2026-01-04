@@ -194,37 +194,80 @@ class BraviaApi {
   }
 
   // Send text to TV (for keyboard input)
+  // Note: Text input only works when TV has an active text field (e.g., search box, login form)
   Future<bool> sendText(String text) async {
-    // First, try to get the current text form to obtain encKey
-    final getResult = await _sendRequest(
+    // Method 1: Try setTextForm on appControl (most common method)
+    var result = await _sendRequest(
       '/sony/appControl',
-      'getTextForm',
-      params: [''],
+      'setTextForm',
+      params: [{'text': text}],
+      version: '1.0',
+    );
+
+    developer.log('setTextForm v1.0 result: $result', name: 'BraviaApi');
+
+    if (result != null && result['error'] == null) {
+      return true;
+    }
+
+    // Method 2: Try setTextInput on textInput endpoint (some models)
+    result = await _sendRequest(
+      '/sony/textInput',
+      'setTextInput',
+      params: [text],
+      version: '1.0',
+    );
+
+    developer.log('setTextInput result: $result', name: 'BraviaApi');
+
+    if (result != null && result['error'] == null) {
+      return true;
+    }
+
+    // Method 3: Try with version 1.1 (some newer TVs)
+    result = await _sendRequest(
+      '/sony/appControl',
+      'setTextForm',
+      params: [{'text': text}],
       version: '1.1',
     );
 
-    String? encKey;
+    developer.log('setTextForm v1.1 result: $result', name: 'BraviaApi');
+
+    if (result != null && result['error'] == null) {
+      return true;
+    }
+
+    // Method 4: Try with encKey if getTextForm works
+    final getResult = await _sendRequest(
+      '/sony/appControl',
+      'getTextForm',
+      params: [{}],
+      version: '1.0',
+    );
+
+    developer.log('getTextForm result: $getResult', name: 'BraviaApi');
+
     if (getResult != null && getResult['result'] != null) {
       try {
         final resultData = getResult['result'][0];
         if (resultData is Map && resultData.containsKey('encKey')) {
-          encKey = resultData['encKey'];
+          final encKey = resultData['encKey'];
+          final retryResult = await _sendRequest(
+            '/sony/appControl',
+            'setTextForm',
+            params: [{'text': text, 'encKey': encKey}],
+            version: '1.0',
+          );
+          developer.log('setTextForm with encKey result: $retryResult', name: 'BraviaApi');
+          return retryResult != null && retryResult['error'] == null;
         }
-      } catch (_) {}
+      } catch (e) {
+        developer.log('Error parsing getTextForm: $e', name: 'BraviaApi');
+      }
     }
 
-    // Send the text with or without encKey
-    final params = encKey != null
-        ? [{'text': text, 'encKey': encKey}]
-        : [{'text': text}];
-
-    final result = await _sendRequest(
-      '/sony/appControl',
-      'setTextForm',
-      params: params,
-      version: '1.1',
-    );
-    return result != null && result['error'] == null;
+    return false;
   }
 
   // Power control
