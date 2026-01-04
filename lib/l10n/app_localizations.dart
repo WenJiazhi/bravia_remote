@@ -66,13 +66,14 @@ class AppLocalizations {
       // Text Input
       'textInput': 'Text Input',
       'howToUse': 'How to use',
-      'textInputInstructions': '1. Open a search box or text field on your TV\n2. Type your text below\n3. Press Send',
+      'textInputInstructions': '1. Open a search box on TV (e.g., Netflix/YouTube search)\n2. Wait for the on-screen keyboard to appear\n3. Type your text below and press Send',
       'enterTextToSend': 'Enter text to send...',
       'sendToTv': 'Send to TV',
       'recent': 'Recent',
       'sentTextsAppearHere': 'Sent texts will appear here',
       'textSentSuccessfully': 'Text sent successfully',
-      'failedToSendText': 'Failed to send text. Make sure a text field is active on TV.',
+      'failedToSendText': 'Send failed - No active text field on TV',
+      'openSearchHint': 'Tip: Open YouTube/Netflix search on TV first!',
 
       // Discovery
       'scanning': 'Scanning for BRAVIA TVs...',
@@ -146,13 +147,14 @@ class AppLocalizations {
       // 文本输入
       'textInput': '文本输入',
       'howToUse': '使用方法',
-      'textInputInstructions': '1. 在电视上打开搜索框或文本输入框\n2. 在下方输入文字\n3. 点击发送',
+      'textInputInstructions': '1. 在电视上打开搜索框（如 Netflix/YouTube 搜索）\n2. 等待屏幕键盘出现\n3. 在下方输入文字并点击发送',
       'enterTextToSend': '输入要发送的文字...',
       'sendToTv': '发送到电视',
       'recent': '最近',
       'sentTextsAppearHere': '已发送的文字将显示在这里',
       'textSentSuccessfully': '文字发送成功',
-      'failedToSendText': '发送失败。请确保电视上有活动的文本输入框。',
+      'failedToSendText': '发送失败 - 电视上没有活动的文本输入框',
+      'openSearchHint': '提示：请先在电视上打开 YouTube/Netflix 搜索！',
 
       // 发现
       'scanning': '正在扫描 BRAVIA 电视...',

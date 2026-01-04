@@ -161,6 +161,30 @@ class _TextInputScreenState extends State<TextInputScreen> {
 
               const SizedBox(height: 20),
 
+              // Tip - Important reminder
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange[900]?.withAlpha(77),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange[700]!),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.lightbulb_outline, color: Colors.orange, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        l10n.get('openSearchHint'),
+                        style: const TextStyle(color: Colors.orange, fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
               // Text input
               TextField(
                 controller: _controller,
