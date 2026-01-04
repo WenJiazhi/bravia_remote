@@ -3,6 +3,7 @@ name: Build iOS IPA
 on:
   push:
     branches: [ main, master ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
@@ -14,6 +15,26 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Get version info
+        id: version
+        run: |
+          # Get version from pubspec.yaml
+          VERSION=$(grep 'version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
+          BUILD=$(grep 'version:' pubspec.yaml | sed 's/.*+//')
+
+          # Get commit short hash
+          COMMIT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+
+          # Get date
+          DATE=$(date +'%Y%m%d')
+
+          # Set outputs
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "build=$BUILD" >> $GITHUB_OUTPUT
+          echo "commit=$COMMIT_SHA" >> $GITHUB_OUTPUT
+          echo "date=$DATE" >> $GITHUB_OUTPUT
+          echo "filename=bravia_remote_v${VERSION}_${DATE}_${COMMIT_SHA}" >> $GITHUB_OUTPUT
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -37,44 +58,11 @@ jobs:
           cd build/ios/iphoneos
           mkdir -p Payload
           cp -r Runner.app Payload/
-          zip -r ../../../bravia_remote.ipa Payload
+          zip -r ../../../${{ steps.version.outputs.filename }}.ipa Payload
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: bravia-remote-ios
-          path: bravia_remote.ipa
-          retention-days: 30
-
-  build-android:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.38.5'
-          channel: 'stable'
-          cache: true
-
-      - name: Get dependencies
-        run: flutter pub get
-
-      - name: Build APK
-        run: flutter build apk --release
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bravia-remote-android
-          path: build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 30
+          name: bravia-remote-ios-${{ steps.version.outputs.version }}-${{ steps.version.outputs.date }}
+          path: ${{ steps.version.outputs.filename }}.ipa
+          retention-days: 90
