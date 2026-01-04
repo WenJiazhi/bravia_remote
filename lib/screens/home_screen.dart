@@ -81,11 +81,19 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom -
+                  kToolbarHeight -
+                  48,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
               // Logo/Icon
               Container(
                 padding: const EdgeInsets.all(24),
@@ -160,22 +168,23 @@ class _HomeScreenState extends State<HomeScreen> {
               // Features
               _buildFeature(
                 Icons.gamepad,
-                settings.locale.languageCode == 'zh' ? '完整遥控功能' : 'Full Remote Control',
+                l10n.get('featureRemoteControl'),
                 isDark,
               ),
               const SizedBox(height: 16),
               _buildFeature(
                 Icons.keyboard,
-                settings.locale.languageCode == 'zh' ? '文本输入搜索' : 'Text Input for Search',
+                l10n.get('featureTextInput'),
                 isDark,
               ),
               const SizedBox(height: 16),
               _buildFeature(
                 Icons.apps,
-                settings.locale.languageCode == 'zh' ? '快捷应用启动' : 'Quick App Launch',
+                l10n.get('featureQuickApps'),
                 isDark,
               ),
             ],
+            ),
           ),
         ),
       ),

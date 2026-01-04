@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../services/discovery_service.dart';
 
 class DeviceDiscoveryScreen extends StatefulWidget {
@@ -36,7 +37,7 @@ class _DeviceDiscoveryScreenState extends State<DeviceDiscoveryScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = 'Scan failed. Please try again.';
+        _error = AppLocalizations.of(context).get('scanFailed');
       });
     } finally {
       if (mounted) {
@@ -47,10 +48,11 @@ class _DeviceDiscoveryScreenState extends State<DeviceDiscoveryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        title: const Text('Auto Discover'),
+        title: Text(l10n.get('autoDiscover')),
         backgroundColor: Colors.grey[850],
         actions: [
           IconButton(
@@ -72,14 +74,14 @@ class _DeviceDiscoveryScreenState extends State<DeviceDiscoveryScreen> {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.blue[700]!),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.wifi, color: Colors.blue),
-                    SizedBox(width: 8),
+                    const Icon(Icons.wifi, color: Colors.blue),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Make sure your phone and TV are on the same Wi-Fi.',
-                        style: TextStyle(color: Colors.white70),
+                        l10n.get('sameWifiHint'),
+                        style: const TextStyle(color: Colors.white70),
                       ),
                     ),
                   ],
@@ -91,10 +93,10 @@ class _DeviceDiscoveryScreenState extends State<DeviceDiscoveryScreen> {
                   child: CircularProgressIndicator(),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Scanning for BRAVIA TVs...',
+                Text(
+                  l10n.get('scanning'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white70),
+                  style: const TextStyle(color: Colors.white70),
                 ),
               ] else if (_error != null) ...[
                 Text(
@@ -105,18 +107,18 @@ class _DeviceDiscoveryScreenState extends State<DeviceDiscoveryScreen> {
                 const SizedBox(height: 12),
                 OutlinedButton(
                   onPressed: _scan,
-                  child: const Text('Try Again'),
+                  child: Text(l10n.get('tryAgain')),
                 ),
               ] else if (_devices.isEmpty) ...[
-                const Text(
-                  'No devices found.',
+                Text(
+                  l10n.get('noDevicesFound'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white70),
+                  style: const TextStyle(color: Colors.white70),
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton(
                   onPressed: _scan,
-                  child: const Text('Rescan'),
+                  child: Text(l10n.get('rescan')),
                 ),
               ] else ...[
                 Expanded(

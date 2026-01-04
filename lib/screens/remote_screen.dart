@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../l10n/app_localizations.dart';
 import '../models/tv_device.dart';
 import '../services/bravia_api.dart';
 import '../widgets/remote_button.dart';
@@ -32,9 +33,10 @@ class _RemoteScreenState extends State<RemoteScreen> {
     if (!mounted) return;
     setState(() => _isConnected = connected);
     if (!connected && mounted) {
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Cannot connect to TV. Check IP and PSK.'),
+        SnackBar(
+          content: Text(l10n.get('cannotConnectToTv')),
           backgroundColor: Colors.red,
         ),
       );
@@ -45,10 +47,11 @@ class _RemoteScreenState extends State<RemoteScreen> {
     HapticFeedback.lightImpact();
     final success = await command();
     if (!success && mounted) {
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Command failed'),
-          duration: Duration(seconds: 1),
+        SnackBar(
+          content: Text(l10n.get('commandFailed')),
+          duration: const Duration(seconds: 1),
         ),
       );
     }
@@ -56,6 +59,7 @@ class _RemoteScreenState extends State<RemoteScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.grey[900],
       appBar: AppBar(
@@ -159,8 +163,10 @@ class _RemoteScreenState extends State<RemoteScreen> {
                   // Volume controls
                   Column(
                     children: [
-                      const Text('VOL',
-                          style: TextStyle(color: Colors.white70)),
+                      Text(
+                        l10n.get('volumeShort'),
+                        style: const TextStyle(color: Colors.white70),
+                      ),
                       const SizedBox(height: 8),
                       RemoteButton(
                         icon: Icons.add,
@@ -237,8 +243,10 @@ class _RemoteScreenState extends State<RemoteScreen> {
                   // Channel controls
                   Column(
                     children: [
-                      const Text('CH',
-                          style: TextStyle(color: Colors.white70)),
+                      Text(
+                        l10n.get('channelShort'),
+                        style: const TextStyle(color: Colors.white70),
+                      ),
                       const SizedBox(height: 8),
                       RemoteButton(
                         icon: Icons.keyboard_arrow_up,
@@ -338,7 +346,7 @@ class _RemoteScreenState extends State<RemoteScreen> {
                     );
                   },
                   icon: const Icon(Icons.keyboard),
-                  label: const Text('Text Input'),
+                  label: Text(l10n.get('textInput')),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue[700],
                     padding: const EdgeInsets.symmetric(vertical: 16),

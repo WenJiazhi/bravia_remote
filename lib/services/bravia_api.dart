@@ -195,13 +195,34 @@ class BraviaApi {
 
   // Send text to TV (for keyboard input)
   Future<bool> sendText(String text) async {
+    // First, try to get the current text form to obtain encKey
+    final getResult = await _sendRequest(
+      '/sony/appControl',
+      'getTextForm',
+      params: [''],
+      version: '1.1',
+    );
+
+    String? encKey;
+    if (getResult != null && getResult['result'] != null) {
+      try {
+        final resultData = getResult['result'][0];
+        if (resultData is Map && resultData.containsKey('encKey')) {
+          encKey = resultData['encKey'];
+        }
+      } catch (_) {}
+    }
+
+    // Send the text with or without encKey
+    final params = encKey != null
+        ? [{'text': text, 'encKey': encKey}]
+        : [{'text': text}];
+
     final result = await _sendRequest(
       '/sony/appControl',
       'setTextForm',
-      params: [
-        {'text': text}
-      ],
-      version: '1.0',
+      params: params,
+      version: '1.1',
     );
     return result != null && result['error'] == null;
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../services/bravia_api.dart';
 
 class TextInputScreen extends StatefulWidget {
@@ -32,6 +33,7 @@ class _TextInputScreenState extends State<TextInputScreen> {
     if (!mounted) return;
     setState(() => _isSending = false);
 
+    final l10n = AppLocalizations.of(context);
     if (success) {
       setState(() {
         if (!_history.contains(text)) {
@@ -42,8 +44,8 @@ class _TextInputScreenState extends State<TextInputScreen> {
       _controller.clear();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Text sent successfully'),
+          SnackBar(
+            content: Text(l10n.get('textSentSuccessfully')),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 1),
           ),
@@ -52,8 +54,8 @@ class _TextInputScreenState extends State<TextInputScreen> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to send text. Make sure a text field is active on TV.'),
+          SnackBar(
+            content: Text(l10n.get('failedToSendText')),
             backgroundColor: Colors.red,
           ),
         );
@@ -63,10 +65,11 @@ class _TextInputScreenState extends State<TextInputScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        title: const Text('Text Input'),
+        title: Text(l10n.get('textInput')),
         backgroundColor: Colors.grey[850],
       ),
       body: SafeArea(
@@ -83,28 +86,26 @@ class _TextInputScreenState extends State<TextInputScreen> {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.blue[700]!),
                 ),
-                child: const Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.info_outline, color: Colors.blue),
-                        SizedBox(width: 8),
+                        const Icon(Icons.info_outline, color: Colors.blue),
+                        const SizedBox(width: 8),
                         Text(
-                          'How to use',
-                          style: TextStyle(
+                          l10n.get('howToUse'),
+                          style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
-                      '1. Open a search box or text field on your TV\n'
-                      '2. Type your text below\n'
-                      '3. Press Send',
-                      style: TextStyle(color: Colors.white70),
+                      l10n.get('textInputInstructions'),
+                      style: const TextStyle(color: Colors.white70),
                     ),
                   ],
                 ),
@@ -117,7 +118,7 @@ class _TextInputScreenState extends State<TextInputScreen> {
                 controller: _controller,
                 style: const TextStyle(color: Colors.white, fontSize: 18),
                 decoration: InputDecoration(
-                  hintText: 'Enter text to send...',
+                  hintText: l10n.get('enterTextToSend'),
                   hintStyle: const TextStyle(color: Colors.white38),
                   filled: true,
                   fillColor: Colors.grey[800],
@@ -163,12 +164,13 @@ class _TextInputScreenState extends State<TextInputScreen> {
                           color: Colors.white,
                         ),
                       )
-                    : const Row(
+                    : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.send),
-                          SizedBox(width: 8),
-                          Text('Send to TV', style: TextStyle(fontSize: 16)),
+                          const Icon(Icons.send),
+                          const SizedBox(width: 8),
+                          Text(l10n.get('sendToTv'),
+                              style: const TextStyle(fontSize: 16)),
                         ],
                       ),
               ),
@@ -177,9 +179,9 @@ class _TextInputScreenState extends State<TextInputScreen> {
 
               // History
               if (_history.isNotEmpty) ...[
-                const Text(
-                  'Recent',
-                  style: TextStyle(
+                Text(
+                  l10n.get('recent'),
+                  style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -227,11 +229,11 @@ class _TextInputScreenState extends State<TextInputScreen> {
                   ),
                 ),
               ] else
-                const Expanded(
+                Expanded(
                   child: Center(
                     child: Text(
-                      'Sent texts will appear here',
-                      style: TextStyle(color: Colors.white38),
+                      l10n.get('sentTextsAppearHere'),
+                      style: const TextStyle(color: Colors.white38),
                     ),
                   ),
                 ),

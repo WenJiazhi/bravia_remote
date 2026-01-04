@@ -175,7 +175,7 @@ class DiscoveryService {
   String? _firstElementText(XmlDocument document, String tag) {
     final elements = document.findAllElements(tag);
     if (elements.isEmpty) return null;
-    final text = elements.first.value?.trim();
-    return (text == null || text.isEmpty) ? null : text;
+    final text = elements.first.innerText.trim();
+    return text.isEmpty ? null : text;
   }
 }

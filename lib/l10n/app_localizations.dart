@@ -60,6 +60,8 @@ class AppLocalizations {
       // Remote
       'commandFailed': 'Command failed',
       'cannotConnectToTv': 'Cannot connect to TV. Check IP and PSK.',
+      'volumeShort': 'VOL',
+      'channelShort': 'CH',
 
       // Text Input
       'textInput': 'Text Input',
@@ -85,6 +87,11 @@ class AppLocalizations {
       'lightTheme': 'Light',
       'darkTheme': 'Dark',
       'language': 'Language',
+
+      // Features
+      'featureRemoteControl': 'Full Remote Control',
+      'featureTextInput': 'Text Input for Search',
+      'featureQuickApps': 'Quick App Launch',
     },
     'zh': {
       // 首页
@@ -133,6 +140,8 @@ class AppLocalizations {
       // 遥控器
       'commandFailed': '命令失败',
       'cannotConnectToTv': '无法连接到电视。请检查 IP 和 PSK。',
+      'volumeShort': '音量',
+      'channelShort': '频道',
 
       // 文本输入
       'textInput': '文本输入',
@@ -158,6 +167,11 @@ class AppLocalizations {
       'lightTheme': '浅色',
       'darkTheme': '深色',
       'language': '语言',
+
+      // 功能特性
+      'featureRemoteControl': '完整遥控功能',
+      'featureTextInput': '文本输入搜索',
+      'featureQuickApps': '快捷应用启动',
     },
   };
 
