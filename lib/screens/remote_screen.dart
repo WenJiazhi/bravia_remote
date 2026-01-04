@@ -361,36 +361,91 @@ class _RemoteScreenState extends State<RemoteScreen> {
   }
 
   Widget _buildNumberPad() {
-    final numbers = [
-      ['1', IrccCodes.num1],
-      ['2', IrccCodes.num2],
-      ['3', IrccCodes.num3],
-      ['4', IrccCodes.num4],
-      ['5', IrccCodes.num5],
-      ['6', IrccCodes.num6],
-      ['7', IrccCodes.num7],
-      ['8', IrccCodes.num8],
-      ['9', IrccCodes.num9],
-      ['', ''],
-      ['0', IrccCodes.num0],
-      ['', ''],
-    ];
-
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      alignment: WrapAlignment.center,
-      children: numbers.map((item) {
-        if (item[0].isEmpty) {
-          return const SizedBox(width: 50, height: 50);
-        }
-        return RemoteButton(
-          text: item[0],
-          onPressed: () => _sendCommand(() => _api.sendIrcc(item[1])),
-          size: 50,
-          isCircle: false,
-        );
-      }).toList(),
+    // 5x2 grid layout: 12345 / 67890
+    return Column(
+      children: [
+        // Row 1: 1 2 3 4 5
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            RemoteButton(
+              text: '1',
+              onPressed: () => _sendCommand(() => _api.sendIrcc(IrccCodes.num1)),
+              size: 50,
+              isCircle: false,
+            ),
+            const SizedBox(width: 8),
+            RemoteButton(
+              text: '2',
+              onPressed: () => _sendCommand(() => _api.sendIrcc(IrccCodes.num2)),
+              size: 50,
+              isCircle: false,
+            ),
+            const SizedBox(width: 8),
+            RemoteButton(
+              text: '3',
+              onPressed: () => _sendCommand(() => _api.sendIrcc(IrccCodes.num3)),
+              size: 50,
+              isCircle: false,
+            ),
+            const SizedBox(width: 8),
+            RemoteButton(
+              text: '4',
+              onPressed: () => _sendCommand(() => _api.sendIrcc(IrccCodes.num4)),
+              size: 50,
+              isCircle: false,
+            ),
+            const SizedBox(width: 8),
+            RemoteButton(
+              text: '5',
+              onPressed: () => _sendCommand(() => _api.sendIrcc(IrccCodes.num5)),
+              size: 50,
+              isCircle: false,
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        // Row 2: 6 7 8 9 0
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            RemoteButton(
+              text: '6',
+              onPressed: () => _sendCommand(() => _api.sendIrcc(IrccCodes.num6)),
+              size: 50,
+              isCircle: false,
+            ),
+            const SizedBox(width: 8),
+            RemoteButton(
+              text: '7',
+              onPressed: () => _sendCommand(() => _api.sendIrcc(IrccCodes.num7)),
+              size: 50,
+              isCircle: false,
+            ),
+            const SizedBox(width: 8),
+            RemoteButton(
+              text: '8',
+              onPressed: () => _sendCommand(() => _api.sendIrcc(IrccCodes.num8)),
+              size: 50,
+              isCircle: false,
+            ),
+            const SizedBox(width: 8),
+            RemoteButton(
+              text: '9',
+              onPressed: () => _sendCommand(() => _api.sendIrcc(IrccCodes.num9)),
+              size: 50,
+              isCircle: false,
+            ),
+            const SizedBox(width: 8),
+            RemoteButton(
+              text: '0',
+              onPressed: () => _sendCommand(() => _api.sendIrcc(IrccCodes.num0)),
+              size: 50,
+              isCircle: false,
+            ),
+          ],
+        ),
+      ],
     );
   }
 
