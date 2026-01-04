@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/tv_device.dart';
+import '../services/app_settings.dart';
 import '../services/bravia_api.dart';
 import '../services/discovery_service.dart';
 import '../services/storage_service.dart';
@@ -46,11 +49,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.dispose();
   }
 
-  // Start PIN pairing process
   Future<void> _startPairing() async {
+    final l10n = AppLocalizations.of(context);
     if (_ipController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter TV IP address first')),
+        SnackBar(content: Text(l10n.get('pleaseEnterIpFirst'))),
       );
       return;
     }
@@ -71,18 +74,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
       setState(() => _showPinInput = true);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Check your TV! Enter the 4-digit PIN shown.'),
+          SnackBar(
+            content: Text(l10n.get('checkTvPin')),
             backgroundColor: Colors.blue,
-            duration: Duration(seconds: 5),
+            duration: const Duration(seconds: 5),
           ),
         );
       }
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to start pairing. Check TV IP and try again.'),
+          SnackBar(
+            content: Text(l10n.get('failedStartPairing')),
             backgroundColor: Colors.red,
           ),
         );
@@ -113,12 +116,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  // Complete pairing with PIN
   Future<void> _completePairing() async {
+    final l10n = AppLocalizations.of(context);
     final pin = _pinController.text.trim();
     if (pin.length != 4) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter the 4-digit PIN')),
+        SnackBar(content: Text(l10n.get('enterPin'))),
       );
       return;
     }
@@ -143,8 +146,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Paired successfully!'),
+          SnackBar(
+            content: Text(l10n.get('pairedSuccessfully')),
             backgroundColor: Colors.green,
           ),
         );
@@ -152,8 +155,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Wrong PIN. Please try again.'),
+          SnackBar(
+            content: Text(l10n.get('wrongPin')),
             backgroundColor: Colors.red,
           ),
         );
@@ -162,17 +165,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _testConnection() async {
+    final l10n = AppLocalizations.of(context);
     if (_ipController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter IP address first')),
+        SnackBar(content: Text(l10n.get('pleaseEnterIpFirst'))),
       );
       return;
     }
 
-    // Need either PSK or auth cookie
     if (_pskController.text.isEmpty && (_authCookie == null || _authCookie!.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please pair with PIN or enter PSK')),
+        SnackBar(content: Text(l10n.get('pleasePairOrPsk'))),
       );
       return;
     }
@@ -200,7 +203,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(success ? 'Connected successfully!' : 'Connection failed'),
+          content: Text(success ? l10n.get('connectedSuccessfully') : l10n.get('connectionFailed')),
           backgroundColor: success ? Colors.green : Colors.red,
         ),
       );
@@ -208,11 +211,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _saveSettings() async {
+    final l10n = AppLocalizations.of(context);
     if (_formKey.currentState!.validate()) {
-      // Need either PSK or auth cookie
       if (_pskController.text.isEmpty && (_authCookie == null || _authCookie!.isEmpty)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please pair with PIN or enter PSK first')),
+          SnackBar(content: Text(l10n.get('pleasePairFirst'))),
         );
         return;
       }
@@ -234,15 +237,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final settings = Provider.of<AppSettings>(context);
+    final isDark = settings.isDarkMode;
+
     return Scaffold(
-      backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        title: const Text('TV Settings'),
-        backgroundColor: Colors.grey[850],
+        title: Text(l10n.get('tvSettings')),
         actions: [
           TextButton(
             onPressed: _saveSettings,
-            child: const Text('Save'),
+            child: Text(l10n.get('save')),
           ),
         ],
       ),
@@ -254,37 +259,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Setup instructions - Updated for PIN pairing
+                // Setup instructions
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.blue[900]?.withAlpha(77),
+                    color: Colors.blue.withAlpha(isDark ? 30 : 20),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.blue[700]!),
+                    border: Border.all(color: Colors.blue.withAlpha(100)),
                   ),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.link, color: Colors.blue),
-                          SizedBox(width: 8),
+                          const Icon(Icons.link, color: Colors.blue),
+                          const SizedBox(width: 8),
                           Text(
-                            'Easy Setup (Recommended)',
+                            l10n.get('easySetup'),
                             style: TextStyle(
-                              color: Colors.white,
+                              color: isDark ? Colors.white : Colors.grey[900],
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       Text(
-                        '1. Make sure phone and TV are on same WiFi\n'
-                        '2. Enter your TV\'s IP address\n'
-                        '3. Tap "Pair with PIN"\n'
-                        '4. Enter the 4-digit code shown on TV',
-                        style: TextStyle(color: Colors.white70, height: 1.5),
+                        l10n.get('setupInstructions'),
+                        style: TextStyle(
+                          color: isDark ? Colors.white70 : Colors.grey[700],
+                          height: 1.5,
+                        ),
                       ),
                     ],
                   ),
@@ -296,9 +301,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ElevatedButton.icon(
                   onPressed: _openDiscovery,
                   icon: const Icon(Icons.search),
-                  label: const Text('Auto Discover'),
+                  label: Text(l10n.get('autoDiscover')),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[700],
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                 ),
@@ -308,26 +312,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // Name field
                 TextFormField(
                   controller: _nameController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: _inputDecoration('TV Name', Icons.tv),
+                  decoration: InputDecoration(
+                    labelText: l10n.get('tvName'),
+                    prefixIcon: const Icon(Icons.tv),
+                  ),
                   validator: (value) =>
-                      value?.isEmpty == true ? 'Please enter a name' : null,
+                      value?.isEmpty == true ? l10n.get('pleaseEnterName') : null,
                 ),
 
                 const SizedBox(height: 16),
 
-                // IP field
+                // IP field - Fixed keyboard type for proper input
                 TextFormField(
                   controller: _ipController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: _inputDecoration('TV IP Address', Icons.router),
-                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: l10n.get('tvIpAddress'),
+                    prefixIcon: const Icon(Icons.router),
+                    hintText: '192.168.1.100',
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  autocorrect: false,
+                  enableSuggestions: false,
                   validator: (value) {
-                    if (value?.isEmpty == true) return 'Please enter IP address';
+                    if (value?.isEmpty == true) return l10n.get('pleaseEnterIp');
                     final ipRegex = RegExp(
                         r'^((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$');
                     if (!ipRegex.hasMatch(value!)) {
-                      return 'Invalid IP address format';
+                      return l10n.get('invalidIpFormat');
                     }
                     return null;
                   },
@@ -336,105 +347,92 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 24),
 
                 // PIN Pairing Section
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[850],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            _authCookie != null ? Icons.check_circle : Icons.pin,
-                            color: _authCookie != null ? Colors.green : Colors.blue,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _authCookie != null ? 'Paired' : 'PIN Pairing',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-
-                      if (!_showPinInput) ...[
-                        ElevatedButton.icon(
-                          onPressed: _isPairing ? null : _startPairing,
-                          icon: _isPairing
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              : Icon(_authCookie != null ? Icons.refresh : Icons.link),
-                          label: Text(_authCookie != null ? 'Re-pair' : 'Pair with PIN'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue[700],
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                          ),
-                        ),
-                      ] else ...[
-                        // PIN input
-                        TextField(
-                          controller: _pinController,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            letterSpacing: 8,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: '0000',
-                            hintStyle: TextStyle(color: Colors.grey[600]),
-                            filled: true,
-                            fillColor: Colors.grey[800],
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                          keyboardType: TextInputType.number,
-                          maxLength: 4,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 8),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
                         Row(
                           children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () => setState(() => _showPinInput = false),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.white70,
-                                ),
-                                child: const Text('Cancel'),
-                              ),
+                            Icon(
+                              _authCookie != null ? Icons.check_circle : Icons.pin,
+                              color: _authCookie != null ? Colors.green : Colors.blue,
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: _isPairing ? null : _completePairing,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green[700],
-                                ),
-                                child: _isPairing
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(strokeWidth: 2),
-                                      )
-                                    : const Text('Confirm'),
+                            const SizedBox(width: 8),
+                            Text(
+                              _authCookie != null ? l10n.get('paired') : l10n.get('pinPairing'),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
                               ),
                             ),
                           ],
                         ),
+                        const SizedBox(height: 12),
+
+                        if (!_showPinInput) ...[
+                          ElevatedButton.icon(
+                            onPressed: _isPairing ? null : _startPairing,
+                            icon: _isPairing
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : Icon(_authCookie != null ? Icons.refresh : Icons.link),
+                            label: Text(_authCookie != null ? l10n.get('rePair') : l10n.get('pairWithPin')),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                          ),
+                        ] else ...[
+                          // PIN input
+                          TextField(
+                            controller: _pinController,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              letterSpacing: 8,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: '0000',
+                              counterText: '',
+                            ),
+                            keyboardType: TextInputType.number,
+                            maxLength: 4,
+                            textAlign: TextAlign.center,
+                            autofocus: true,
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () => setState(() => _showPinInput = false),
+                                  child: Text(l10n.get('cancel')),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: _isPairing ? null : _completePairing,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                  ),
+                                  child: _isPairing
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                        )
+                                      : Text(l10n.get('confirm')),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
 
@@ -443,12 +441,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // OR divider
                 Row(
                   children: [
-                    Expanded(child: Divider(color: Colors.grey[700])),
+                    const Expanded(child: Divider()),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text('OR', style: TextStyle(color: Colors.grey[600])),
+                      child: Text(
+                        l10n.get('or'),
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
                     ),
-                    Expanded(child: Divider(color: Colors.grey[700])),
+                    const Expanded(child: Divider()),
                   ],
                 ),
 
@@ -456,12 +457,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 // PSK Section (Advanced)
                 ExpansionTile(
-                  title: const Text(
-                    'Use Pre-Shared Key (Advanced)',
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                  collapsedIconColor: Colors.white54,
-                  iconColor: Colors.white,
+                  title: Text(l10n.get('usePsk')),
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
@@ -469,17 +465,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(
-                            'If PIN pairing doesn\'t work, you can use PSK:\n'
-                            '1. TV Settings > Network > IP Control\n'
-                            '2. Set Authentication to "Pre-Shared Key"\n'
-                            '3. Enter a password and use it below',
-                            style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                            l10n.get('pskInstructions'),
+                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
                           ),
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _pskController,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: _inputDecoration('Pre-Shared Key (PSK)', Icons.key),
+                            decoration: InputDecoration(
+                              labelText: l10n.get('preSharedKey'),
+                              prefixIcon: const Icon(Icons.key),
+                            ),
                           ),
                         ],
                       ),
@@ -510,17 +505,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ? Colors.green
                                   : Colors.red,
                         ),
-                  label: Text(_isTesting ? 'Testing...' : 'Test Connection'),
+                  label: Text(_isTesting ? l10n.get('testing') : l10n.get('testConnection')),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     side: BorderSide(
                       color: _connectionStatus == null
-                          ? Colors.white54
+                          ? Colors.grey
                           : _connectionStatus!
                               ? Colors.green
                               : Colors.red,
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                 ),
 
@@ -530,15 +524,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ElevatedButton(
                   onPressed: _saveSettings,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[700],
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Save Settings',
-                    style: TextStyle(fontSize: 16),
+                  child: Text(
+                    l10n.get('saveSettings'),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
 
@@ -546,21 +539,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 // Find IP help
                 ExpansionTile(
-                  title: const Text(
-                    'How to find TV IP address',
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                  collapsedIconColor: Colors.white54,
-                  iconColor: Colors.white,
+                  title: Text(l10n.get('howToFindIp')),
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Text(
-                        '1. Go to TV Settings\n'
-                        '2. Select Network > Network Status\n'
-                        '3. Look for "IP Address"\n\n'
-                        'Common format: 192.168.x.x',
-                        style: TextStyle(color: Colors.grey[400]),
+                        l10n.get('findIpInstructions'),
+                        style: TextStyle(color: Colors.grey[600]),
                       ),
                     ),
                   ],
@@ -569,24 +554,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String label, IconData icon) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: const TextStyle(color: Colors.white54),
-      prefixIcon: Icon(icon, color: Colors.white54),
-      filled: true,
-      fillColor: Colors.grey[800],
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.red),
       ),
     );
   }
