@@ -147,6 +147,10 @@ class BraviaApi {
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       }
+      developer.log(
+        'Bravia API non-200 response: ${response.statusCode} ${response.body}',
+        name: 'BraviaApi',
+      );
       return null;
     } catch (e) {
       developer.log('Bravia API Error: $e', name: 'BraviaApi');
@@ -197,88 +201,58 @@ class BraviaApi {
   // Note: Text input only works when TV has an active text field (e.g., search box, login form)
   // Returns a map with 'success' and 'debug' keys
   Future<Map<String, dynamic>> sendTextWithDebug(String text) async {
+    final trimmedText = text.trim();
     final debugInfo = <String>[];
 
-    // Method 1: Try setTextForm on appControl (most common method)
-    var result = await _sendRequest(
+    if (trimmedText.isEmpty) {
+      return {
+        'success': false,
+        'debug': 'Text input is empty',
+      };
+    }
+
+    final statusResult = await _sendRequest(
       '/sony/appControl',
-      'setTextForm',
-      params: [{'text': text}],
+      'getApplicationStatusList',
       version: '1.0',
     );
 
-    debugInfo.add('Method 1 (setTextForm v1.0): ${result ?? "null"}');
+    debugInfo.add(
+      'Keyboard status: ${statusResult != null ? jsonEncode(statusResult) : "null"}',
+    );
+
+    final keyboardActive = _isSoftwareKeyboardActive(statusResult);
+    if (keyboardActive == false) {
+      debugInfo.add('Software keyboard is not active on TV.');
+      return {
+        'success': false,
+        'errorCode': 7,
+        'debug': debugInfo.join('\n'),
+      };
+    }
+
+    final result = await _sendRequest(
+      '/sony/appControl',
+      'setTextForm',
+      params: [trimmedText],
+      version: '1.0',
+    );
+
+    debugInfo.add(
+      'setTextForm v1.0: ${result != null ? jsonEncode(result) : "null"}',
+    );
     developer.log('setTextForm v1.0 result: $result', name: 'BraviaApi');
 
-    if (result != null && result['error'] == null) {
+    final errorCode = _extractErrorCode(result);
+    if (result != null && errorCode == null) {
       return {'success': true, 'debug': debugInfo.join('\n')};
     }
 
-    // Method 2: Try setTextInput on textInput endpoint (some models)
-    result = await _sendRequest(
-      '/sony/textInput',
-      'setTextInput',
-      params: [text],
-      version: '1.0',
-    );
-
-    debugInfo.add('Method 2 (setTextInput): ${result ?? "null"}');
-    developer.log('setTextInput result: $result', name: 'BraviaApi');
-
-    if (result != null && result['error'] == null) {
-      return {'success': true, 'debug': debugInfo.join('\n')};
-    }
-
-    // Method 3: Try with version 1.1 (some newer TVs)
-    result = await _sendRequest(
-      '/sony/appControl',
-      'setTextForm',
-      params: [{'text': text}],
-      version: '1.1',
-    );
-
-    debugInfo.add('Method 3 (setTextForm v1.1): ${result ?? "null"}');
-    developer.log('setTextForm v1.1 result: $result', name: 'BraviaApi');
-
-    if (result != null && result['error'] == null) {
-      return {'success': true, 'debug': debugInfo.join('\n')};
-    }
-
-    // Method 4: Try with encKey if getTextForm works
-    final getResult = await _sendRequest(
-      '/sony/appControl',
-      'getTextForm',
-      params: [{}],
-      version: '1.0',
-    );
-
-    debugInfo.add('Method 4 (getTextForm): ${getResult ?? "null"}');
-    developer.log('getTextForm result: $getResult', name: 'BraviaApi');
-
-    if (getResult != null && getResult['result'] != null) {
-      try {
-        final resultData = getResult['result'][0];
-        if (resultData is Map && resultData.containsKey('encKey')) {
-          final encKey = resultData['encKey'];
-          final retryResult = await _sendRequest(
-            '/sony/appControl',
-            'setTextForm',
-            params: [{'text': text, 'encKey': encKey}],
-            version: '1.0',
-          );
-          debugInfo.add('Method 4 (with encKey): ${retryResult ?? "null"}');
-          developer.log('setTextForm with encKey result: $retryResult', name: 'BraviaApi');
-          if (retryResult != null && retryResult['error'] == null) {
-            return {'success': true, 'debug': debugInfo.join('\n')};
-          }
-        }
-      } catch (e) {
-        debugInfo.add('Error parsing: $e');
-        developer.log('Error parsing getTextForm: $e', name: 'BraviaApi');
-      }
-    }
-
-    return {'success': false, 'debug': debugInfo.join('\n')};
+    return {
+      'success': false,
+      'errorCode': errorCode,
+      'debug': debugInfo.join('\n'),
+    };
   }
 
   // Legacy method for backward compatibility
@@ -370,6 +344,34 @@ class BraviaApi {
     } catch (e) {
       return false;
     }
+  }
+
+  bool? _isSoftwareKeyboardActive(Map<String, dynamic>? statusResult) {
+    final result = statusResult?['result'];
+    if (result is! List || result.isEmpty) {
+      return null;
+    }
+
+    final entries = result.first;
+    if (entries is! List) {
+      return null;
+    }
+
+    for (final entry in entries) {
+      if (entry is Map<String, dynamic> && entry['name'] == 'textInput') {
+        return entry['status'] == 'on';
+      }
+    }
+
+    return null;
+  }
+
+  int? _extractErrorCode(Map<String, dynamic>? result) {
+    final error = result?['error'];
+    if (error is List && error.isNotEmpty && error.first is int) {
+      return error.first as int;
+    }
+    return null;
   }
 }
 

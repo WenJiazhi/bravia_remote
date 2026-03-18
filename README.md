@@ -107,7 +107,7 @@ Content-Type: application/json
 {
   "method": "setTextForm",
   "id": 1,
-  "params": [{"text": "Hello World"}],
+  "params": ["Hello World"],
   "version": "1.0"
 }
 ```

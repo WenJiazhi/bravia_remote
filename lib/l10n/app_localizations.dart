@@ -72,8 +72,14 @@ class AppLocalizations {
       'recent': 'Recent',
       'sentTextsAppearHere': 'Sent texts will appear here',
       'textSentSuccessfully': 'Text sent successfully',
-      'failedToSendText': 'Send failed - No active text field on TV',
+      'failedToSendText': 'Failed to send text',
       'openSearchHint': 'Tip: Open YouTube/Netflix search on TV first!',
+      'softwareKeyboardInactive':
+          'TV software keyboard is not active. Open a search box on TV first.',
+      'textInputFailureHelp':
+          'Text input requires the TV software keyboard to be visible and the current app to support BRAVIA text input.',
+      'debugInfo': 'Debug Info',
+      'noDebugInfo': 'No debug info',
 
       // Discovery
       'scanning': 'Scanning for BRAVIA TVs...',
@@ -153,8 +159,12 @@ class AppLocalizations {
       'recent': '最近',
       'sentTextsAppearHere': '已发送的文字将显示在这里',
       'textSentSuccessfully': '文字发送成功',
-      'failedToSendText': '发送失败 - 电视上没有活动的文本输入框',
+      'failedToSendText': '发送文字失败',
       'openSearchHint': '提示：请先在电视上打开 YouTube/Netflix 搜索！',
+      'softwareKeyboardInactive': '电视软件键盘未激活，请先在电视上打开搜索框或输入框。',
+      'textInputFailureHelp': '文字输入要求电视软件键盘可见，且当前应用支持 BRAVIA 文字输入接口。',
+      'debugInfo': '调试信息',
+      'noDebugInfo': '没有调试信息',
 
       // 发现
       'scanning': '正在扫描 BRAVIA 电视...',

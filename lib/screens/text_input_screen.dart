@@ -16,6 +16,7 @@ class _TextInputScreenState extends State<TextInputScreen> {
   bool _isSending = false;
   final List<String> _history = [];
   String? _lastDebugInfo;
+  int? _lastErrorCode;
 
   @override
   void dispose() {
@@ -32,6 +33,7 @@ class _TextInputScreenState extends State<TextInputScreen> {
     final result = await widget.api.sendTextWithDebug(text);
     final success = result['success'] as bool;
     _lastDebugInfo = result['debug'] as String?;
+    _lastErrorCode = result['errorCode'] as int?;
 
     if (!mounted) return;
     setState(() => _isSending = false);
@@ -75,9 +77,18 @@ class _TextInputScreenState extends State<TextInputScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Debug Info:',
-                style: TextStyle(
+              Text(
+                _lastErrorCode == 7
+                    ? l10n.get('softwareKeyboardInactive')
+                    : l10n.get('textInputFailureHelp'),
+                style: const TextStyle(
+                  color: Colors.white70,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                l10n.get('debugInfo'),
+                style: const TextStyle(
                   color: Colors.white70,
                   fontWeight: FontWeight.bold,
                 ),
@@ -90,7 +101,7 @@ class _TextInputScreenState extends State<TextInputScreen> {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  _lastDebugInfo ?? 'No debug info',
+                  _lastDebugInfo ?? l10n.get('noDebugInfo'),
                   style: const TextStyle(
                     color: Colors.white60,
                     fontSize: 11,
